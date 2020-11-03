@@ -32,6 +32,9 @@ _settings = {
     "version_files": ["commitizen/__version__.py", "pyproject.toml"],
     "style": [["pointer", "reverse"], ["question", "underline"]],
     "changelog_file": "CHANGELOG.md",
+    "hooks_pre_changelog": [],
+    "hooks_pre_bump": [],
+    "hooks_post_bump": [],
 }
 
 _new_settings = {
@@ -42,6 +45,9 @@ _new_settings = {
     "version_files": ["commitizen/__version__.py", "pyproject.toml"],
     "style": [["pointer", "reverse"], ["question", "underline"]],
     "changelog_file": "CHANGELOG.md",
+    "hooks_pre_changelog": [],
+    "hooks_pre_bump": [],
+    "hooks_post_bump": [],
 }
 
 _read_settings = {

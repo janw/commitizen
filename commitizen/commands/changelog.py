@@ -1,9 +1,9 @@
-import os.path
+import os
 from difflib import SequenceMatcher
 from operator import itemgetter
 from typing import Callable, Dict, List, Optional
 
-from commitizen import changelog, factory, git, out
+from commitizen import changelog, factory, git, hooks, out
 from commitizen.config import BaseConfig
 from commitizen.exceptions import (
     DryRunExit,
@@ -39,6 +39,7 @@ class Changelog:
         self.change_type_map = (
             self.config.settings.get("change_type_map") or self.cz.change_type_map
         )
+        self.hooks_pre_changelog = self.config.settings["hooks_pre_changelog"]
 
     def _find_incremental_rev(self, latest_version: str, tags: List[GitTag]) -> str:
         """Try to find the 'start_rev'.
@@ -111,6 +112,14 @@ class Changelog:
         if self.dry_run:
             out.write(changelog_out)
             raise DryRunExit()
+
+        if self.hooks_pre_changelog:
+            hooks.run(
+                self.hooks_pre_changelog,
+                unreleased_version=unreleased_version,
+                start_rev=start_rev,
+                changelog_file_name=self.file_name,
+            )
 
         lines = []
         if self.incremental and os.path.isfile(self.file_name):

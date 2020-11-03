@@ -3,7 +3,7 @@ from typing import List, Optional
 import questionary
 from packaging.version import Version
 
-from commitizen import bump, cmd, factory, git, out
+from commitizen import bump, cmd, factory, git, hooks, out
 from commitizen.commands.changelog import Changelog
 from commitizen.config import BaseConfig
 from commitizen.exceptions import (
@@ -40,6 +40,8 @@ class Bump:
         self.changelog = arguments["changelog"]
         self.no_verify = arguments["no_verify"]
         self.check_consistency = arguments["check_consistency"]
+        self.hooks_pre_bump = self.config.settings["hooks_pre_bump"]
+        self.hooks_post_bump = self.config.settings["hooks_post_bump"]
 
     def is_initial_tag(self, current_tag_version: str, is_yes: bool = False) -> bool:
         """Check if reading the whole git tree up to HEAD is needed."""
@@ -157,6 +159,20 @@ class Bump:
             changelog_cmd()
             c = cmd.run(f"git add {changelog_cmd.file_name}")
 
+        if self.hooks_pre_bump:
+            hooks.run(
+                self.hooks_pre_bump,
+                _env_prefix="CZ_BUMP_",
+                is_initial=is_initial,
+                current_version=current_version,
+                current_tag_version=current_tag_version,
+                new_version=new_version.public,
+                new_tag_version=new_tag_version,
+                message=message,
+                increment=increment,
+                changelog_file_name=changelog_cmd.file_name,
+            )
+
         self.config.set_key("version", new_version.public)
         c = git.commit(message, args=self._get_commit_args())
         if c.return_code != 0:
@@ -164,6 +180,21 @@ class Bump:
         c = git.tag(new_tag_version)
         if c.return_code != 0:
             raise BumpTagFailedError(c.err)
+
+        if self.hooks_post_bump:
+            hooks.run(
+                self.hooks_post_bump,
+                _env_prefix="CZ_POST_",
+                was_initial=is_initial,
+                previous_version=current_version,
+                previous_tag_version=current_tag_version,
+                current_version=new_version.public,
+                current_tag_version=new_tag_version,
+                message=message,
+                increment=increment,
+                changelog_file_name=changelog_cmd.file_name,
+            )
+
         out.success("Done!")
 
     def _get_commit_args(self):

@@ -23,6 +23,7 @@ class ExitCode(enum.IntEnum):
     NO_REVISION = 16
     CURRENT_VERSION_NOT_FOUND = 17
     INVALID_COMMAND_ARGUMENT = 18
+    RUN_HOOK_FAILED = 19
 
 
 class CommitizenException(Exception):
@@ -137,3 +138,7 @@ class NoCommandFoundError(CommitizenException):
 
 class InvalidCommandArgumentError(CommitizenException):
     exit_code = ExitCode.INVALID_COMMAND_ARGUMENT
+
+
+class RunHookError(CommitizenException):
+    exit_code = ExitCode.RUN_HOOK_FAILED

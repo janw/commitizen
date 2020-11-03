@@ -8,6 +8,9 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "name": "cz_conventional_commits",
     "version": None,
     "version_files": [],
+    "hooks_pre_changelog": [],
+    "hooks_pre_bump": [],
+    "hooks_post_bump": [],
     "tag_format": None,  # example v$version
     "bump_message": None,  # bumped v$current_version to $new_version
     "changelog_file": "CHANGELOG.md",
